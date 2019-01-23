@@ -1,8 +1,8 @@
 // const MongoClient = require("mongodb").MongoClient;
 const { MongoClient, ObjectID } = require("mongodb");
 
-// const obj = new ObjectID();
-// console.log(obj);
+//
+
 
 MongoClient.connect(
   "mongodb://localhost:27017/TodoApp",
