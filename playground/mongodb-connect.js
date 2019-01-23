@@ -3,7 +3,6 @@ const { MongoClient, ObjectID } = require("mongodb");
 
 //
 
-
 MongoClient.connect(
   "mongodb://localhost:27017/TodoApp",
   { useNewUrlParser: true },
@@ -26,6 +25,13 @@ MongoClient.connect(
 
     //   console.log(JSON.stringify(result.ops, undefined, 2))
     // })
+
+    db.collection("Todos")
+      .insertOne({
+        text: "Something to do",
+        completed: false
+      })
+      .then(result => console.log(JSON.stringify(result.ops, undefined, 2)));
 
     // db.collection("Users").insertOne(
     //   {
