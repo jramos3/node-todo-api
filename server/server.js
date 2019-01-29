@@ -11,6 +11,11 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
+// GET /
+app.get("/", (req, res) => {
+  res.send("<h1>Todo App API</h1>");
+});
+
 //POST /todos
 app.post("/todos", (req, res) => {
   const todo = new Todo({
