@@ -21,9 +21,10 @@ app.get("/", (req, res) => {
 });
 
 //POST /todos
-app.post("/todos", (req, res) => {
+app.post("/todos", authenticate, (req, res) => {
   const todo = new Todo({
-    text: req.body.text
+    text: req.body.text,
+    _creator: req.user._id
   });
 
   todo.save().then(
@@ -37,8 +38,10 @@ app.post("/todos", (req, res) => {
 });
 
 //GET /todos
-app.get("/todos", (req, res) => {
-  Todo.find().then(
+app.get("/todos", authenticate, (req, res) => {
+  Todo.find({
+    _creator: req.user._id
+  }).then(
     todos => {
       res.send({ todos });
     },
@@ -49,14 +52,17 @@ app.get("/todos", (req, res) => {
 });
 
 //GET /todos/:id
-app.get("/todos/:id", (req, res) => {
+app.get("/todos/:id", authenticate, (req, res) => {
   const { id } = req.params;
 
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
 
-  Todo.findById(id)
+  Todo.findOne({
+    _id: id,
+    _creator: req.user._id
+  })
     .then(todo => {
       if (!todo) {
         return res.status(404).send();
@@ -70,14 +76,17 @@ app.get("/todos/:id", (req, res) => {
 });
 
 //DELETE /todos/:id
-app.delete("/todos/:id", (req, res) => {
+app.delete("/todos/:id", authenticate, (req, res) => {
   const { id } = req.params;
 
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
 
-  Todo.findByIdAndRemove(id)
+  Todo.findOneAndRemove({
+    _id: id,
+    _creator: req.user._id
+  })
     .then(todo => {
       if (!todo) {
         return res.status(404).send();
@@ -91,7 +100,7 @@ app.delete("/todos/:id", (req, res) => {
 });
 
 //PATCH /todos/:id
-app.patch("/todos/:id", (req, res) => {
+app.patch("/todos/:id", authenticate, (req, res) => {
   const { id } = req.params;
   const body = _.pick(req.body, ["text", "completed"]);
 
@@ -106,7 +115,11 @@ app.patch("/todos/:id", (req, res) => {
     body.completedAt = null;
   }
 
-  Todo.findByIdAndUpdate(id, { $set: body }, { new: true })
+  Todo.findOneAndUpdate(
+    { _id: id, _creator: req.user._id },
+    { $set: body },
+    { new: true }
+  )
     .then(todo => {
       if (!todo) {
         return res.status(404).send();
